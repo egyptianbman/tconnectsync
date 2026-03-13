@@ -165,7 +165,7 @@ class LidAlertActivated(BaseEvent):
         "48": "CGM_UNAVAILABLE",
         "49": "DEFAULT_ALERT_49",
         "50": "DEFAULT_ALERT_50",
-        "51": "DEFAULT_ALERT_51",
+        "51": "CONTROL_IQ_LOW",
         "52": "DEFAULT_ALERT_52",
         "53": "DEFAULT_ALERT_53",
         "54": "DEVICE_PAIRED",
@@ -231,7 +231,7 @@ class LidAlertActivated(BaseEvent):
         CgmUnavailable = 48
         DefaultAlert49 = 49
         DefaultAlert50 = 50
-        DefaultAlert51 = 51
+        ControlIqLow = 51
         DefaultAlert52 = 52
         DefaultAlert53 = 53
         DevicePaired = 54
@@ -1129,7 +1129,7 @@ class LidAlertCleared(BaseEvent):
         "48": "CGM_UNAVAILABLE",
         "49": "DEFAULT_ALERT_49",
         "50": "DEFAULT_ALERT_50",
-        "51": "DEFAULT_ALERT_51",
+        "51": "CONTROL_IQ_LOW",
         "52": "DEFAULT_ALERT_52",
         "53": "DEFAULT_ALERT_53",
         "54": "DEVICE_PAIRED",
@@ -1195,7 +1195,7 @@ class LidAlertCleared(BaseEvent):
         CgmUnavailable = 48
         DefaultAlert49 = 49
         DefaultAlert50 = 50
-        DefaultAlert51 = 51
+        ControlIqLow = 51
         DefaultAlert52 = 52
         DefaultAlert53 = 53
         DevicePaired = 54
@@ -2488,25 +2488,45 @@ class LidCgmAlertActivated(BaseEvent):
     param2: float
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -2567,25 +2587,45 @@ class LidCgmAlertCleared(BaseEvent):
     dalertidRaw: int
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -2996,6 +3036,193 @@ class LidCgmStopSessionGx(BaseEvent):
             sessionstoptime=self.sessionstoptime,
             sessionduration=self.sessionduration,
             sessionstopreasonRaw=self.sessionstopreasonRaw,
+        )
+
+
+@dataclass
+class LidCgmStartSessionFsl3(BaseEvent):
+    """218: LID_CGM_START_SESSION_FSL3"""
+    ID = 218
+    NAME = "LID_CGM_START_SESSION_FSL3"
+
+    raw: RawEvent
+    sessionstartflag: int
+
+
+    @staticmethod
+    def build(raw):
+        sessionstartflag, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 10)
+
+        return LidCgmStartSessionFsl3(
+            raw = RawEvent.build(raw),
+            sessionstartflag = sessionstartflag,
+        )
+
+    @property
+    def eventTimestamp(self):
+        return self.raw.timestamp
+
+    @property
+    def seqNum(self):
+        return self.raw.seqNum
+
+    @property
+    def eventId(self):
+        return self.ID
+
+    def todict(self):
+        return dict(
+            id=self.ID,
+            name=self.NAME,
+            seqNum=self.seqNum,
+            eventTimestamp=str(self.eventTimestamp),
+            sessionstartflag=self.sessionstartflag,
+        )
+
+
+@dataclass
+class LidCgmDataFsl3(BaseEvent):
+    """227: LID_CGM_DATA_FSL3"""
+    ID = 227
+    NAME = "LID_CGM_DATA_FSL3"
+
+    raw: RawEvent
+    glucosevaluestatusRaw: int
+    cgmdatatypeRaw: int
+    rateRaw: int # mg/dL/min
+    algorithmstateRaw: int
+    RSSI: int # dBm
+    currentglucosedisplayvalue: int # mg/dL
+    egvtimestamp: int # Seconds
+    interval: int
+
+    GlucosevaluestatusMap = {
+        "0": "Precise Value",
+        "1": "Special High",
+        "2": "Special Low"
+    }
+
+    class GlucosevaluestatusEnum(Enum):
+        PreciseValue = 0
+        SpecialHigh = 1
+        SpecialLow = 2
+
+    @property
+    def glucosevaluestatus(self):
+        try:
+            return self.GlucosevaluestatusEnum(self.glucosevaluestatusRaw)
+        except ValueError as e:
+            logger.error("Invalid glucosevaluestatusRaw in Glucosevaluestatus for "+str(self))
+            logger.error(e)
+            return None
+
+    CgmdatatypeMap = {
+        "0": "Five Minute Reading (FMR)",
+        "1": "Backfill",
+        "4": "None",
+        "5": "One Minute Reading (OMR)",
+        "6": "Real Time Reading"
+    }
+
+    class CgmdatatypeBitmask(IntFlag):
+        FiveMinuteReadingFmr = 2**0
+        Backfill = 2**1
+        NoneVal = 2**4
+        OneMinuteReadingOmr = 2**5
+        RealTimeReading = 2**6
+
+    @property
+    def cgmdatatype(self):
+        try:
+            return self.CgmdatatypeBitmask(self.cgmdatatypeRaw)
+        except ValueError as e:
+            logger.error("Invalid cgmdatatypeRaw in CgmdatatypeBitmask for "+str(self))
+            logger.error(e)
+            return None
+
+    @property
+    def rate(self):
+        return self.rateRaw * 0.1
+
+    AlgorithmstateMap = {
+        "2": "Warmup",
+        "100": "OK State",
+        "101": "RF Error State",
+        "102": "Sensor Signal Low State",
+        "103": "Temp High State",
+        "104": "Temp Low State",
+        "105": "Invalid Data State",
+        "106": "Other State"
+    }
+
+    class AlgorithmstateEnum(Enum):
+        Warmup = 2
+        OkState = 100
+        RfErrorState = 101
+        SensorSignalLowState = 102
+        TempHighState = 103
+        TempLowState = 104
+        InvalidDataState = 105
+        OtherState = 106
+
+    @property
+    def algorithmstate(self):
+        try:
+            return self.AlgorithmstateEnum(self.algorithmstateRaw)
+        except ValueError as e:
+            logger.error("Invalid algorithmstateRaw in Algorithmstate for "+str(self))
+            logger.error(e)
+            return None
+
+    @staticmethod
+    def build(raw):
+        glucosevaluestatus, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 13)
+        cgmdatatype, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 12)
+        rate, = struct.unpack_from(INT16, raw[:EVENT_LEN], 10)
+        algorithmstate, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 17)
+        RSSI, = struct.unpack_from(INT8, raw[:EVENT_LEN], 16)
+        currentglucosedisplayvalue, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 19)
+        egvtimestamp, = struct.unpack_from(UINT32, raw[:EVENT_LEN], 2)
+        interval, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 23)
+
+        return LidCgmDataFsl3(
+            raw = RawEvent.build(raw),
+            glucosevaluestatusRaw = glucosevaluestatus,
+            cgmdatatypeRaw = cgmdatatype,
+            rateRaw = rate,
+            algorithmstateRaw = algorithmstate,
+            RSSI = RSSI,
+            currentglucosedisplayvalue = currentglucosedisplayvalue,
+            egvtimestamp = egvtimestamp,
+            interval = interval,
+        )
+
+    @property
+    def eventTimestamp(self):
+        return self.raw.timestamp
+
+    @property
+    def seqNum(self):
+        return self.raw.seqNum
+
+    @property
+    def eventId(self):
+        return self.ID
+
+    def todict(self):
+        return dict(
+            id=self.ID,
+            name=self.NAME,
+            seqNum=self.seqNum,
+            eventTimestamp=str(self.eventTimestamp),
+            glucosevaluestatusRaw=self.glucosevaluestatusRaw,
+            cgmdatatypeRaw=self.cgmdatatypeRaw,
+            rateRaw=self.rateRaw,
+            algorithmstateRaw=self.algorithmstateRaw,
+            RSSI=self.RSSI,
+            currentglucosedisplayvalue=self.currentglucosedisplayvalue,
+            egvtimestamp=self.egvtimestamp,
+            interval=self.interval,
         )
 
 
@@ -3434,6 +3661,47 @@ class LidAaPcmChange(BaseEvent):
             cgmavailableRaw=self.cgmavailableRaw,
             closedlooppreferredRaw=self.closedlooppreferredRaw,
             sufficientclosedloopparamsRaw=self.sufficientclosedloopparamsRaw,
+        )
+
+
+@dataclass
+class LidCgmStopSessionFsl3(BaseEvent):
+    """237: LID_CGM_STOP_SESSION_FSL3"""
+    ID = 237
+    NAME = "LID_CGM_STOP_SESSION_FSL3"
+
+    raw: RawEvent
+    sessionstopreason: int
+
+
+    @staticmethod
+    def build(raw):
+        sessionstopreason, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 10)
+
+        return LidCgmStopSessionFsl3(
+            raw = RawEvent.build(raw),
+            sessionstopreason = sessionstopreason,
+        )
+
+    @property
+    def eventTimestamp(self):
+        return self.raw.timestamp
+
+    @property
+    def seqNum(self):
+        return self.raw.seqNum
+
+    @property
+    def eventId(self):
+        return self.ID
+
+    def todict(self):
+        return dict(
+            id=self.ID,
+            name=self.NAME,
+            seqNum=self.seqNum,
+            eventTimestamp=str(self.eventTimestamp),
+            sessionstopreason=self.sessionstopreason,
         )
 
 
@@ -3998,25 +4266,45 @@ class LidCgmAlertActivatedDex(BaseEvent):
     param2: float
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -4101,25 +4389,45 @@ class LidCgmAlertClearedDex(BaseEvent):
     sensortypeRaw: int
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -4196,25 +4504,45 @@ class LidCgmAlertAckDex(BaseEvent):
     acksourceRaw: int
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -4949,25 +5277,45 @@ class LidCgmAlertActivatedFsl2(BaseEvent):
     param2: float
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -5050,25 +5398,45 @@ class LidCgmAlertClearedFsl2(BaseEvent):
     sensortypeRaw: int
 
     DalertidMap = {
+        "1": "CGM Fixed Low",
+        "2": "CGM High",
+        "3": "CGM Low",
+        "8": "CGM Rapid Fall",
         "11": "CGM Sensor Fail",
+        "12": "CGM Sensor Expiring Soon",
         "13": "CGM Sensor Expired",
         "14": "CGM Out Of Range",
         "20": "CGM Transmitter Error",
+        "22": "CGM Sensor Expiring 2",
+        "25": "CGM Replace Sensor",
         "26": "CGM Temperature",
         "27": "CGM Failed Connection",
         "39": "CGM Transmitter Expired",
-        "40": "Pump Bluetooth Error"
+        "40": "Pump Bluetooth Error",
+        "45": "CGM Transmitter Expiring Soon",
+        "46": "CGM Transmitter Expiring 2",
+        "48": "CGM Unavailable"
     }
 
     class DalertidEnum(Enum):
+        CgmFixedLow = 1
+        CgmHigh = 2
+        CgmLow = 3
+        CgmRapidFall = 8
         CgmSensorFail = 11
+        CgmSensorExpiringSoon = 12
         CgmSensorExpired = 13
         CgmOutOfRange = 14
         CgmTransmitterError = 20
+        CgmSensorExpiring2 = 22
+        CgmReplaceSensor = 25
         CgmTemperature = 26
         CgmFailedConnection = 27
         CgmTransmitterExpired = 39
         PumpBluetoothError = 40
+        CgmTransmitterExpiringSoon = 45
+        CgmTransmitterExpiring2 = 46
+        CgmUnavailable = 48
 
     @property
     def dalertid(self):
@@ -5133,30 +5501,24 @@ class LidCgmAlertClearedFsl2(BaseEvent):
 
 @dataclass
 class LidCgmJoinSessionFsl3(BaseEvent):
-    """477: LID_CGM_JOIN_SESSION_FSL3"""
-    ID = 477
+    """487: LID_CGM_JOIN_SESSION_FSL3"""
+    ID = 487
     NAME = "LID_CGM_JOIN_SESSION_FSL3"
 
     raw: RawEvent
-    sessionstarttime: int # Seconds
-    sessionjointime: int # Seconds
-    sessionduration: int # Days
-    sessionjoinreason: int
+    joinreason: int
+    sensoridentifier: int
 
 
     @staticmethod
     def build(raw):
-        sessionstarttime, = struct.unpack_from(UINT32, raw[:EVENT_LEN], 10)
-        sessionjointime, = struct.unpack_from(UINT32, raw[:EVENT_LEN], 14)
-        sessionduration, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 18)
-        sessionjoinreason, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 19)
+        joinreason, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 10)
+        sensoridentifier, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 14)
 
         return LidCgmJoinSessionFsl3(
             raw = RawEvent.build(raw),
-            sessionstarttime = sessionstarttime,
-            sessionjointime = sessionjointime,
-            sessionduration = sessionduration,
-            sessionjoinreason = sessionjoinreason,
+            joinreason = joinreason,
+            sensoridentifier = sensoridentifier,
         )
 
     @property
@@ -5177,233 +5539,8 @@ class LidCgmJoinSessionFsl3(BaseEvent):
             name=self.NAME,
             seqNum=self.seqNum,
             eventTimestamp=str(self.eventTimestamp),
-            sessionstarttime=self.sessionstarttime,
-            sessionjointime=self.sessionjointime,
-            sessionduration=self.sessionduration,
-            sessionjoinreason=self.sessionjoinreason,
-        )
-
-
-@dataclass
-class LidCgmDataFsl3(BaseEvent):
-    """480: LID_CGM_DATA_FSL3"""
-    ID = 480
-    NAME = "LID_CGM_DATA_FSL3"
-
-    raw: RawEvent
-    glucosevaluestatusRaw: int
-    cgmDataTypeRaw: int
-    rateRaw: int # mg/dL/min
-    algorithmstateRaw: int
-    RSSI: int # dBm
-    currentglucosedisplayvalue: int # mg/dL
-    egvTimestamp: int # Seconds
-    egvInfoBitmaskRaw: int
-    interval: int
-
-    GlucosevaluestatusMap = {
-        "0": "Precise Value",
-        "1": "Special High",
-        "2": "Special Low"
-    }
-
-    class GlucosevaluestatusEnum(Enum):
-        PreciseValue = 0
-        SpecialHigh = 1
-        SpecialLow = 2
-
-    @property
-    def glucosevaluestatus(self):
-        try:
-            return self.GlucosevaluestatusEnum(self.glucosevaluestatusRaw)
-        except ValueError as e:
-            logger.error("Invalid glucosevaluestatusRaw in Glucosevaluestatus for "+str(self))
-            logger.error(e)
-            return None
-
-    CgmdatatypeMap = {
-        "0": "Five Minute Reading (FMR)",
-        "1": "Backfill",
-        "4": "None",
-        "5": "One Minute Reading (OMR)"
-    }
-
-    class CgmdatatypeBitmask(IntFlag):
-        FiveMinuteReadingFmr = 2**0
-        Backfill = 2**1
-        NoneVal = 2**4
-        OneMinuteReadingOmr = 2**5
-
-    @property
-    def cgmDataType(self):
-        try:
-            return self.CgmdatatypeBitmask(self.cgmDataTypeRaw)
-        except ValueError as e:
-            logger.error("Invalid cgmDataTypeRaw in CgmdatatypeBitmask for "+str(self))
-            logger.error(e)
-            return None
-
-    @property
-    def rate(self):
-        return self.rateRaw * 0.1
-
-    AlgorithmstateMap = {
-        "100": "OK State"
-    }
-
-    class AlgorithmstateEnum(Enum):
-        OkState = 100
-
-    @property
-    def algorithmstate(self):
-        try:
-            return self.AlgorithmstateEnum(self.algorithmstateRaw)
-        except ValueError as e:
-            logger.error("Invalid algorithmstateRaw in Algorithmstate for "+str(self))
-            logger.error(e)
-            return None
-
-    EgvinfobitmaskMap = {
-        "0": "Five Minute Reading (FMR)",
-        "1": "Backfill",
-        "4": "NO_EGV message",
-        "5": "Valid timestamp",
-        "6": "Valid EGV (valid range)",
-        "7": "Valid algState (algState is 100)",
-        "8": "EGV was successfully added to CGM subsystem array (e.g., not a duplicate)",
-        "9": "OMR reading type",
-        "11": "Sensor Type (see CGMTxType enum)",
-        "12": "Sensor Type (see CGMTxType enum)",
-        "13": "Sensor Type (see CGMTxType enum)"
-    }
-
-    class EgvinfobitmaskBitmask(IntFlag):
-        FiveMinuteReadingFmr = 2**0
-        Backfill = 2**1
-        NoEgvMessage = 2**4
-        ValidTimestamp = 2**5
-        ValidEgvValidRange = 2**6
-        ValidAlgstateAlgstateIs100 = 2**7
-        EgvWasSuccessfullyAddedToCgmSubsystemArrayE = 2**8
-        OmrReadingType = 2**9
-        SensorTypeSeeCgmtxtypeEnum = 2**11
-        SensorTypeSeeCgmtxtypeEnum = 2**12
-        SensorTypeSeeCgmtxtypeEnum = 2**13
-
-    @property
-    def egvInfoBitmask(self):
-        try:
-            return self.EgvinfobitmaskBitmask(self.egvInfoBitmaskRaw)
-        except ValueError as e:
-            logger.error("Invalid egvInfoBitmaskRaw in EgvinfobitmaskBitmask for "+str(self))
-            logger.error(e)
-            return None
-
-    @staticmethod
-    def build(raw):
-        glucosevaluestatus, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 13)
-        cgmDataType, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 12)
-        rate, = struct.unpack_from(INT16, raw[:EVENT_LEN], 10)
-        algorithmstate, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 17)
-        RSSI, = struct.unpack_from(INT8, raw[:EVENT_LEN], 16)
-        currentglucosedisplayvalue, = struct.unpack_from(UINT16, raw[:EVENT_LEN], 14)
-        egvTimestamp, = struct.unpack_from(UINT32, raw[:EVENT_LEN], 18)
-        egvInfoBitmask, = struct.unpack_from(UINT16, raw[:EVENT_LEN], 24)
-        interval, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 23)
-
-        return LidCgmDataFsl3(
-            raw = RawEvent.build(raw),
-            glucosevaluestatusRaw = glucosevaluestatus,
-            cgmDataTypeRaw = cgmDataType,
-            rateRaw = rate,
-            algorithmstateRaw = algorithmstate,
-            RSSI = RSSI,
-            currentglucosedisplayvalue = currentglucosedisplayvalue,
-            egvTimestamp = egvTimestamp,
-            egvInfoBitmaskRaw = egvInfoBitmask,
-            interval = interval,
-        )
-
-    @property
-    def eventTimestamp(self):
-        return self.raw.timestamp
-
-    @property
-    def seqNum(self):
-        return self.raw.seqNum
-
-    @property
-    def eventId(self):
-        return self.ID
-
-    def todict(self):
-        return dict(
-            id=self.ID,
-            name=self.NAME,
-            seqNum=self.seqNum,
-            eventTimestamp=str(self.eventTimestamp),
-            glucosevaluestatusRaw=self.glucosevaluestatusRaw,
-            cgmDataTypeRaw=self.cgmDataTypeRaw,
-            rateRaw=self.rateRaw,
-            algorithmstateRaw=self.algorithmstateRaw,
-            RSSI=self.RSSI,
-            currentglucosedisplayvalue=self.currentglucosedisplayvalue,
-            egvTimestamp=self.egvTimestamp,
-            egvInfoBitmaskRaw=self.egvInfoBitmaskRaw,
-            interval=self.interval,
-        )
-
-
-@dataclass
-class LidCgmStopSessionFsl3(BaseEvent):
-    """486: LID_CGM_STOP_SESSION_FSL3"""
-    ID = 486
-    NAME = "LID_CGM_STOP_SESSION_FSL3"
-
-    raw: RawEvent
-    sessionstarttime: int # sec
-    sessionstoptime: int # sec
-    sessionduration: int # days
-    sessionstopreason: int
-
-
-    @staticmethod
-    def build(raw):
-        sessionstarttime, = struct.unpack_from(UINT32, raw[:EVENT_LEN], 10)
-        sessionstoptime, = struct.unpack_from(UINT32, raw[:EVENT_LEN], 14)
-        sessionduration, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 18)
-        sessionstopreason, = struct.unpack_from(UINT8, raw[:EVENT_LEN], 19)
-
-        return LidCgmStopSessionFsl3(
-            raw = RawEvent.build(raw),
-            sessionstarttime = sessionstarttime,
-            sessionstoptime = sessionstoptime,
-            sessionduration = sessionduration,
-            sessionstopreason = sessionstopreason,
-        )
-
-    @property
-    def eventTimestamp(self):
-        return self.raw.timestamp
-
-    @property
-    def seqNum(self):
-        return self.raw.seqNum
-
-    @property
-    def eventId(self):
-        return self.ID
-
-    def todict(self):
-        return dict(
-            id=self.ID,
-            name=self.NAME,
-            seqNum=self.seqNum,
-            eventTimestamp=str(self.eventTimestamp),
-            sessionstarttime=self.sessionstarttime,
-            sessionstoptime=self.sessionstoptime,
-            sessionduration=self.sessionduration,
-            sessionstopreason=self.sessionstopreason,
+            joinreason=self.joinreason,
+            sensoridentifier=self.sensoridentifier,
         )
 
 
@@ -5627,8 +5764,11 @@ EVENT_IDS = {
     212: LidCgmStartSessionGx,
     213: LidCgmJoinSessionGx,
     214: LidCgmStopSessionGx,
+    218: LidCgmStartSessionFsl3,
+    227: LidCgmDataFsl3,
     229: LidAaUserModeChange,
     230: LidAaPcmChange,
+    237: LidCgmStopSessionFsl3,
     256: LidCgmDataGxb,
     279: LidBasalDelivery,
     280: LidBolusDelivery,
@@ -5646,9 +5786,7 @@ EVENT_IDS = {
     447: LidCgmStopSessionG7,
     460: LidCgmAlertActivatedFsl2,
     461: LidCgmAlertClearedFsl2,
-    477: LidCgmJoinSessionFsl3,
-    480: LidCgmDataFsl3,
-    486: LidCgmStopSessionFsl3,
+    487: LidCgmJoinSessionFsl3,
     81: LidDailyBasal,
     48: LidCarbsEntered,
     36: LidUsbConnected,
@@ -5689,8 +5827,11 @@ EVENT_NAMES = {
     "LID_CGM_START_SESSION_GX": LidCgmStartSessionGx,
     "LID_CGM_JOIN_SESSION_GX": LidCgmJoinSessionGx,
     "LID_CGM_STOP_SESSION_GX": LidCgmStopSessionGx,
+    "LID_CGM_START_SESSION_FSL3": LidCgmStartSessionFsl3,
+    "LID_CGM_DATA_FSL3": LidCgmDataFsl3,
     "LID_AA_USER_MODE_CHANGE": LidAaUserModeChange,
     "LID_AA_PCM_CHANGE": LidAaPcmChange,
+    "LID_CGM_STOP_SESSION_FSL3": LidCgmStopSessionFsl3,
     "LID_CGM_DATA_GXB": LidCgmDataGxb,
     "LID_BASAL_DELIVERY": LidBasalDelivery,
     "LID_BOLUS_DELIVERY": LidBolusDelivery,
@@ -5709,8 +5850,6 @@ EVENT_NAMES = {
     "LID_CGM_ALERT_ACTIVATED_FSL2": LidCgmAlertActivatedFsl2,
     "LID_CGM_ALERT_CLEARED_FSL2": LidCgmAlertClearedFsl2,
     "LID_CGM_JOIN_SESSION_FSL3": LidCgmJoinSessionFsl3,
-    "LID_CGM_DATA_FSL3": LidCgmDataFsl3,
-    "LID_CGM_STOP_SESSION_FSL3": LidCgmStopSessionFsl3,
     "LID_DAILY_BASAL": LidDailyBasal,
     "LID_CARBS_ENTERED": LidCarbsEntered,
     "LID_USB_CONNECTED": LidUsbConnected,

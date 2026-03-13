@@ -1131,6 +1131,79 @@
         }
       }
     },
+    "218": {
+      "name": "LID_CGM_START_SESSION_FSL3",
+      "data": {
+        "sessionStartFlag": {
+          "type": "uint8",
+          "offset": 0
+        }
+      }
+    },
+    "227": {
+      "name": "LID_CGM_DATA_FSL3",
+      "data": {
+        "glucoseValueStatus": {
+          "type": "uint8",
+          "offset": 3,
+          "transform": [
+            [
+              "enum",
+              { "0": "Precise Value", "1": "Special High", "2": "Special Low" }
+            ]
+          ]
+        },
+        "cgmDataType": {
+          "type": "uint8",
+          "offset": 2,
+          "transform": [
+            [
+              "bitmask",
+              {
+                "0": "Five Minute Reading (FMR)",
+                "1": "Backfill",
+                "4": "None",
+                "5": "One Minute Reading (OMR)",
+                "6": "Real Time Reading"
+              }
+            ]
+          ]
+        },
+        "Rate": {
+          "type": "int16",
+          "offset": 0,
+          "transform": [["ratio", 0.1]],
+          "uom": "mg/dL/min"
+        },
+        "algorithmState": {
+          "type": "uint8",
+          "offset": 7,
+          "transform": [
+            [
+              "enum",
+              {
+                "2": "Warmup",
+                "100": "OK State",
+                "101": "RF Error State",
+                "102": "Sensor Signal Low State",
+                "103": "Temp High State",
+                "104": "Temp Low State",
+                "105": "Invalid Data State",
+                "106": "Other State"
+              }
+            ]
+          ]
+        },
+        "RSSI": { "type": "int8", "offset": 6, "uom": "dBm" },
+        "currentGlucoseDisplayValue": {
+          "type": "uint8",
+          "offset": 9,
+          "uom": "mg/dL"
+        },
+        "egvTimestamp": { "type": "uint32", "offset": -2, "uom": "Seconds" },
+        "Interval": { "type": "uint8", "offset": 13 }
+      }
+    },
     "229": {
       "name": "LID_AA_USER_MODE_CHANGE",
       "data": {
@@ -1354,6 +1427,15 @@
               }
             ]
           ]
+        }
+      }
+    },
+    "237": {
+      "name": "LID_CGM_STOP_SESSION_FSL3",
+      "data": {
+        "sessionStopReason": {
+          "type": "uint8",
+          "offset": 0
         }
       }
     },
@@ -2296,6 +2378,19 @@
         "SessionStopReason": {
           "type": "uint8",
           "offset": 9
+        }
+      }
+    },
+    "487": {
+      "name": "LID_CGM_JOIN_SESSION_FSL3",
+      "data": {
+        "joinReason": {
+          "type": "uint8",
+          "offset": 0
+        },
+        "sensorIdentifier": {
+          "type": "uint8",
+          "offset": 4
         }
       }
     }

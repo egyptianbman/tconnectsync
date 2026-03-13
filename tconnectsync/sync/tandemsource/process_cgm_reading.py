@@ -68,7 +68,9 @@ class ProcessCGMReading:
     def timestamp_for(self, event):
         # For backfills the time the event was added to the pump's event store
         # might not be the time it actually occurred, so we use the egvTimestamp
-        return arrow.get(TANDEM_EPOCH + event.egvTimestamp, tzinfo='UTC').replace(tzinfo=self.timezone)
+        # FSL3 uses lowercase egvtimestamp, G6/G7 use camelCase egvTimestamp
+        egv_ts = getattr(event, 'egvTimestamp', None) or getattr(event, 'egvtimestamp', None)
+        return arrow.get(TANDEM_EPOCH + egv_ts, tzinfo='UTC').replace(tzinfo=self.timezone)
 
     def to_nsentry(self, event):
         return NightscoutEntry.entry(
