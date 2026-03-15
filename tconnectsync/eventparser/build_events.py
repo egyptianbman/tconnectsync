@@ -34,11 +34,7 @@ TYPE_TO_PYOBJ = {
 
 HEADER_SIZE = 10
 def unpack_command_for(field_def):
-    offset = field_def["offset"]
-    # Negative offsets: absolute position in header region (negate to use as-is)
-    # Positive offsets: data region relative offset (add HEADER_SIZE)
-    actual_offset = -offset if offset < 0 else HEADER_SIZE + offset
-    return f'struct.unpack_from({field_def["type"].upper()}, raw[:EVENT_LEN], {actual_offset})'
+    return f'struct.unpack_from({field_def["type"].upper()}, raw[:EVENT_LEN], {HEADER_SIZE + field_def["offset"]})'
 
 TEMPLATE = '''
 @dataclass
